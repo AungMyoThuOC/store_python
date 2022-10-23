@@ -1,6 +1,7 @@
 import sqlite3
 from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
+from flask import Flask, jsonify, request
 from models.item import ItemModel
 
 class Item(Resource):
@@ -11,6 +12,13 @@ class Item(Resource):
             required = True,
             help = "This field cannot be blank"
         )
+    
+    parser.add_argument(
+        'name',
+        type = str,
+        request = True,
+        help = 'This field cannot be blank'
+    )
 
     @jwt_required()
     def get(self, name):
@@ -35,16 +43,21 @@ class Item(Resource):
         return item.json(), 201
     
     #@jwt_required()
-    def delete(self, name):
-        connection = sqlite3.connect('mydatabase.db')
-        cursor = connection.cursor()
+    def delete(self):
+        data = request.get_json()
+        item = ItemModel.find_item_by_name(data['name'])
+        if item:
+            ItemModel.delete_from_db()
+        return {"message" : "Item delete successfully!"}, 201
+       # connection = sqlite3.connect('mydatabase.db')
+        #cursor = connection.cursor()
 
-        query = "DELETE FROM items WHERE name=?"
-        cursor.execute(query, (name))
+        #query = "DELETE FROM items WHERE name=?"
+        #cursor.execute(query, (name))
 
-        connection.commit()
-        connection.close()
-        return {'message' : 'item deleted'}
+       # connection.commit()
+        #connection.close()
+        #return {'message' : 'item deleted'}
 
     def put (self, name):
 

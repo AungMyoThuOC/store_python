@@ -13,6 +13,11 @@ cursor.execute(create_item_tabel)
 text_data = "INSERT INTO items VALUES ('test', 10.99)"
 cursor.execute(text_data)
 
+test_user = "INSERT INTO users VALUES(1, 'user', 'password')"
+text_data = "insert into ITEMS values('TEXT', 10.99)"
+cursor.execute(text_data)
+cursor.execute(test_user)
+
 connection.commit()
 
 connection.close()

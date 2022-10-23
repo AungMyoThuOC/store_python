@@ -17,20 +17,38 @@ class UserRegister(Resource):
     required = True,
     help = "This field cannot be blank."
    )
+   
+   def delete(self):
+        date = UserRegister.parser.parse_args()
+
+        user = UserModel.find_by_username(date['username'])
+        if user:
+            user.remove_from_db()
+            return {"message" : "User Deleted successfully."}, 201
+            
+        return {"message" : "User doesn't exist."}
 
    def post(self):
-    data = UserRegister.parser.parse_args()
+        data = UserRegister.parser.parse_args()
 
-    if(UserModel.find_by_username(data['username'])):
-        return {"message" : "A user with this username already exists."}, 400
 
-    connection = sqlite3.connect('mydatabase.db')
-    cursor = connection.cursor()
+        if(UserModel.find_by_username(data['username'])):
+            return {"message" : "A user with this username already exists."}, 400
+        try:
+            UserModel.insert((data["username"], data["password"]))
+            UserModel.insert()
+            return {"message" : "User created successfully."},201
+        except:
+            return {"message" : "error when inserting into db"}
 
-    query = "INSERT INTO users VALUES (NULL, ?, ?)"
-    cursor.execute(query, (data['username'], data['password']))
 
-    connection.commit()
-    connection.close()
+    #connection = sqlite3.connect('mydatabase.db')
+    #cursor = connection.cursor()
 
-    return {"message" : "User created successfully"}, 201
+    #query = "INSERT INTO users VALUES (NULL, ?, ?)"
+    #cursor.execute(query, (data['username'], data['password']))
+
+    #connection.commit()
+    #connection.close()
+
+    #return {"message" : "User created successfully"}, 201
