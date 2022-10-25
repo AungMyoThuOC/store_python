@@ -1,4 +1,3 @@
-import sqlite3
 from db import db
 
 class ItemModel():
@@ -6,12 +5,16 @@ class ItemModel():
     __tablename__ = "items"
 
     id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String)
-    price = db.Column(db.Float(precision=3))
+    name = db.Column(db.String(80))
+    price = db.Column(db.Float(precision=2))
 
-    def __init__(self, name, price):
+    store_id = db.Column(db.Integer, db.ForeignKey('stores.id'))
+    store = db.relationship('StoreModel')
+
+    def __init__(self, name, price, store_id):
         self.name = name
         self.price = price
+        self.store_id = store_id
 
     def json(self):
         return {"name" : self.name, "price" : self.price}
@@ -49,12 +52,12 @@ class ItemModel():
         db.session.delete(self)
         db.session.commit()
 
-    def update(self):
-        connection = sqlite3.connect('mydatabase.db')
-        cursor = connection.cursor()
+    # def update(self):
+    #    connection = sqlite3.connect('mydatabase.db')
+    #    cursor = connection.cursor()
 
-        query = "UPDATE items SET price=? WHERE name=?"
-        cursor.execute(query, (self.price, self.name))
+    #    query = "UPDATE items SET price=? WHERE name=?"
+    #    cursor.execute(query, (self.price, self.name))
 
-        connection.commit()
-        connection.close()
+    #    connection.commit()
+    #    connection.close()

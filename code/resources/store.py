@@ -3,8 +3,8 @@ from models.store import StoreModel
 
 class Store(Resource):
     def get(self, name):
-        Store = StoreModel.find_item_by_name(name)
-        if Store:
+        store = StoreModel.find_item_by_name(name)
+        if store:
             return store.json()
         return {"message" : "Store not found"}, 404
 
@@ -29,5 +29,5 @@ class Store(Resource):
 
 class StoreList(Resource):
     def get(stlf):
-        store = StoreModel.query.all()
+        stores = StoreModel.query.all()
         return {"stores" : [store.json() for store in stores ]} 

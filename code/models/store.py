@@ -5,7 +5,7 @@ class StoreModel(db.Model):
     __tablename__ = "stores"
 
     id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String())
+    name = db.Column(db.String(80))
 
     items = db.relationship("ItemModel", lazy='dynamic')
 
@@ -16,12 +16,12 @@ class StoreModel(db.Model):
         return {'name' : self.name, 'items' : [item.json() for item in self.items.all()]}
 
     @classmethod
-    def find_item_by_name(cla, name):
+    def find_item_by_name(cls, name):
         return cls.query.filter_by(name=name).first()
 
     def save_to_db(self):
         db.session.add(self)
-        ad.session.commit()
+        db.session.commit()
 
     def delete_from_db(self):
         db.session.delete(self)

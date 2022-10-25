@@ -1,24 +1,23 @@
 import sqlite3
+from unicodedata import name
 from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
-from flask import Flask, jsonify, request
+from sqlalchemy import Integer
 from models.item import ItemModel
 
 class Item(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument(
-            'price',
+            "price",
             type = float,
             required = True,
-            help = "This field cannot be blank"
-        )
+            help = "This field cannot be blank")
     
     parser.add_argument(
-        'name',
-        type = str,
+        "store_id",
+        type = int,
         request = True,
-        help = 'This field cannot be blank'
-    )
+        help = 'This field cannot be blank')
 
     @jwt_required()
     def get(self, name):
@@ -33,10 +32,10 @@ class Item(Resource):
             return {"message" : "Item with this name {} already exist.".format(name)}, 400
         
         data = Item.parser.parse_args()
-        item = ItemModel(name, data['price'])
+        item = ItemModel(name, data['price'], data['store_id'])
 
         try:
-            item.insert()
+            item.save_to_db()
         except:
             return {"message" : "An error occured while inserting data."}, 500
 
@@ -44,10 +43,10 @@ class Item(Resource):
     
     #@jwt_required()
     def delete(self):
-        data = request.get_json()
-        item = ItemModel.find_item_by_name(data['name'])
+        item = ItemModel.find_item_by_name(name)
         if item:
             ItemModel.delete_from_db()
+
         return {"message" : "Item delete successfully!"}, 201
        # connection = sqlite3.connect('mydatabase.db')
         #cursor = connection.cursor()
@@ -64,35 +63,33 @@ class Item(Resource):
         data = Item.parser.parse_args()
 
         item = ItemModel.find_item_by_name(name)
-        update_item = ItemModel(name, data['price'])
 
         if item is None:
-            try:
-                update_item.insert()
-            except:
-                return {"message" : "An error occured while inserting data."}, 500
+            item = ItemModel(name, data['price'], data['store_id'])
         else:
-            try:
-                update_item.update()
-            except:
-                return {"message" : "An error occured while inserting data."}, 500
+            item.price = data['price']
 
-        return update_item.json()
+        item.save_to_db
+
+        return item.json()
 
 class ItemList(Resource):
     def get(self):
-        connection = sqlite3.connect('mydatabase')
-        cursor = connection.cursor()
+        items = ItemModel.quary.all()
+        return {"items" : [ item.json() for item in items ]}
+        
+        #connection = sqlite3.connect('mydatabase')
+        #cursor = connection.cursor()
 
-        query = "SELECT * FROM items"
-        result = cursor.execute(query)
+        #query = "SELECT * FROM items"
+        #result = cursor.execute(query)
 
-        items = []
-        for row in result:
-            items.append({"name" : row[0], "price" : row[1]})
+        #items = []
+        #for row in result:
+        #    items.append({"name" : row[0], "price" : row[1]})
 
-        connection.close()
-        return {"items" : items}
+        #connection.close()
+        #return {"items" : items}
 
 
     #def get(self):

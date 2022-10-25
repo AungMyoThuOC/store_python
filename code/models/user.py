@@ -6,18 +6,13 @@ class UserModel(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key = True)
-    username = db.Column(db.String(10))
-    password = db.Column(db.String(10))
+    username = db.Column(db.String(80))
+    password = db.Column(db.String(80))
     
     def __init__(self, username, password): 
         #self.id = _id
         self.username = username
         self.password = password
-
-    @classmethod
-    def find_by_username(cls, username):
-
-        return  cls.query.filter_by(username=username).first()
 
         #connection = sqlite3.connect('mydatabase.db')
         #cursor = connection.cursor()
@@ -34,9 +29,6 @@ class UserModel(db.Model):
         #connection.close()
        # return user
 
-    @classmethod
-    def find_by_userid(cls, userid):
-         return cls.query.filter_by(id = userid).first()
         #connection = sqlite3.connect('mydatabase.db')
         #cursor = connection.cursor()
 
@@ -59,3 +51,11 @@ class UserModel(db.Model):
     def remove_from_db(self):
         db.session.delete(self)
         db.session.commit()
+    
+    @classmethod
+    def find_by_username(cls, username):
+        return cls.query.filter_by(username=username).first()
+
+    @classmethod
+    def find_by_userid(cls, _id):
+        return cls.query.filter_by(id=_id).first()
